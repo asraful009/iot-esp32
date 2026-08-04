@@ -1,0 +1,17 @@
+{
+    "name": "bcd-7-segment",
+    "author": "asraful islam",    
+    "pins": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g"
+    ]    
+}

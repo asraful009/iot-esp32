@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "author": "asraful islam",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -5.65,
+      "left": 124.8,
+      "attrs": { "value": "1000" }
+    },    
+    {
+      "type": "chip-bcd",
+      "id": "chip1", "top": 77.82, "left": 158.4, "attrs": {} },
+    {
+      "type": "wokwi-7segment",
+      "id": "sevseg1",
+      "top": -33.42,
+      "left": 235.48,
+      "attrs": { "common": "cathode", "color": "red" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:GND.2", "r1:1", "black", [ "v0" ] ],
+    [ "esp:16", "chip1:A", "green", [ "h24.04", "v-48" ] ],
+    [ "esp:17", "chip1:B", "green", [ "h33.64", "v-28.8" ] ],
+    [ "esp:18", "chip1:C", "green", [ "h0" ] ],
+    [ "esp:19", "chip1:D", "green", [ "h14.44", "v19.2" ] ],
+    [ "sevseg1:A", "chip1:a", "red", [ "v-18.36", "h48", "v220.8", "h-182.4", "v-48" ] ],
+    [ "sevseg1:B", "chip1:b", "red", [ "v-8.76", "h28.8", "v201.6", "h-163.2", "v-28.8" ] ],
+    [ "sevseg1:C", "chip1:c", "red", [ "v9.6", "h28.8", "v86.4" ] ],
+    [ "chip1:d", "sevseg1:D", "red", [ "h21.01", "v-67.2", "h-38.4" ] ],
+    [ "chip1:e", "sevseg1:E", "red", [ "h11.41", "v-48", "h-38.4" ] ],
+    [ "chip1:f", "sevseg1:F", "red", [ "h78.61", "v-163.2", "h0", "v-9.6", "h-96" ] ],
+    [ "chip1:g", "sevseg1:G", "red", [ "h69.01", "v-153.6", "h-96" ] ],
+    [ "sevseg1:COM.1", "r1:2", "black", [ "v38.4", "h-75.6" ] ],
+    [ "sevseg1:COM.2", "r1:2", "black", [ "h0", "v-18.36", "h-76.8" ] ]
+  ],
+  "dependencies": {}
+}
