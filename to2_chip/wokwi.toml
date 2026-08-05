@@ -4,5 +4,11 @@ firmware = ".pio/build/esp32doit-devkit-v1/firmware.bin"
 elf = ".pio/build/esp32doit-devkit-v1/firmware.elf"
 
 [[chip]]
+name="uart7seg"
+binary = "chip/uart7seg/uart7seg.chip.wasm"
+
+[[chip]]
 name="bcd"
 binary = "chip/bcd/bcd.chip.wasm"
+
+
