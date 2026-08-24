@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ESP32 Controller</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .device {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sensors {
+            display: flex;
+            gap: 15px;
+        }
+
+        .sensor {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button.on {
+            background: #4caf50;
+            color: white;
+        }
+
+        button.off {
+            background: #ddd;
+            color: #333;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>ESP32 Controller</h1>
+
+    <div class="device">
+        Device:
+        <strong id="deviceName">---</strong>
+
+        <br>
+
+        Status:
+        <strong id="deviceStatus">---</strong>
+    </div>
+
+
+    <!-- Sensors -->
+
+    <div class="card">
+
+        <h2>Sensors</h2>
+
+        <div class="sensors">
+
+            <div class="sensor">
+
+                <div>Temperature</div>
+
+                <div class="value">
+                    <span id="temperature">--</span> °C
+                </div>
+
+            </div>
+
+
+            <div class="sensor">
+
+                <div>Humidity</div>
+
+                <div class="value">
+                    <span id="humidity">--</span> %
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Controls -->
+
+    <div class="card">
+
+        <h2>Controls</h2>
+
+        <div class="controls">
+
+            <button
+                id="fanButton"
+                class="off"
+                onclick="toggleCommand('fan')"
+            >
+                Fan OFF
+            </button>
+
+
+            <button
+                id="lightButton"
+                class="off"
+                onclick="toggleCommand('light')"
+            >
+                Light OFF
+            </button>
+
+
+            <button
+                id="pumpButton"
+                class="off"
+                onclick="toggleCommand('pump')"
+            >
+                Pump OFF
+            </button>
+
+        </div>
+
+
+        <div
+            class="status"
+            id="commandStatus"
+        >
+            Waiting...
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // --------------------------------------------------
+        // Current commands
+        // --------------------------------------------------
+
+        let commands = {
+            fan: false,
+            light: false,
+            pump: false
+        };
+
+
+        // --------------------------------------------------
+        // Toggle button
+        // --------------------------------------------------
+
+        async function toggleCommand(command) {
+
+            // Toggle value
+
+            commands[command] =
+                !commands[command];
+
+
+            // Update button immediately
+
+            updateButton(
+                `${command}Button`,
+                capitalize(command),
+                commands[command]
+            );
+
+
+            // Send to server
+            console.log(
+                'Sending command:',
+                commands
+            );
+            await sendCommands();
+
+        }
+
+
+        // --------------------------------------------------
+        // Send commands to API
+        // --------------------------------------------------
+
+        async function sendCommands() {
+
+            try {
+
+                const response =
+                    await fetch('/api/device/1/cmd', {
+
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            cmd: commands
+                        })
+
+                    });
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+
+                }
+
+
+                const result =
+                    await response.json();
+
+
+                console.log(
+                    'Command sent:',
+                    result
+                );
+
+
+                document.getElementById(
+                    'commandStatus'
+                ).textContent =
+                    'Command sent successfully';
+
+
+            } catch (error) {
+
+                console.error(
+                    'Failed to send command:',
+                    error
+                );
+
+
+                document.getElementById(
+                    'commandStatus'
+                ).textContent =
+                    'Failed to send command';
+
+            }
+
+        }
+
+
+        // --------------------------------------------------
+        // Update device status
+        // --------------------------------------------------
+
+        async function updateDeviceStatus() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        '/api/device/1/status'
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+
+                }
+
+
+                const replay =
+                    await response.json();
+
+
+                console.log(
+                    'Device:',
+                    replay
+                );
+
+
+                // ------------------------------
+                // Device
+                // ------------------------------
+
+                document.getElementById(
+                    'deviceName'
+                ).textContent =
+                    replay.device.name;
+
+
+                document.getElementById(
+                    'deviceStatus'
+                ).textContent =
+                    replay.device.online
+                        ? 'ONLINE'
+                        : 'OFFLINE';
+
+
+                // ------------------------------
+                // Sensors
+                // ------------------------------
+
+                document.getElementById(
+                    'temperature'
+                ).textContent =
+                    replay.sensor.temperature;
+
+
+                document.getElementById(
+                    'humidity'
+                ).textContent =
+                    replay.sensor.humidity;
+
+
+                // ------------------------------
+                // Commands
+                // ------------------------------
+
+                commands = {
+                    fan: replay.cmd.fan,
+                    light: replay.cmd.light,
+                    pump: replay.cmd.pump
+                };
+
+
+                updateButton(
+                    'fanButton',
+                    'Fan',
+                    commands.fan
+                );
+
+
+                updateButton(
+                    'lightButton',
+                    'Light',
+                    commands.light
+                );
+
+
+                updateButton(
+                    'pumpButton',
+                    'Pump',
+                    commands.pump
+                );
+
+
+                document.getElementById(
+                    'commandStatus'
+                ).textContent =
+                    'Connected';
+
+
+            } catch (error) {
+
+                console.error(
+                    'Failed to update device:',
+                    error
+                );
+
+
+                document.getElementById(
+                    'commandStatus'
+                ).textContent =
+                    'Device connection failed';
+
+            }
+
+        }
+
+
+        // --------------------------------------------------
+        // Update button
+        // --------------------------------------------------
+
+        function updateButton(
+            id,
+            name,
+            state
+        ) {
+
+            const button =
+                document.getElementById(id);
+
+
+            button.textContent =
+                `${name} ${state ? 'ON' : 'OFF'}`;
+
+
+            button.className =
+                state ? 'on' : 'off';
+
+        }
+
+
+        // --------------------------------------------------
+        // Capitalize
+        // --------------------------------------------------
+
+        function capitalize(value) {
+
+            return value.charAt(0).toUpperCase()
+                + value.slice(1);
+
+        }
+
+
+        // --------------------------------------------------
+        // Initial update
+        // --------------------------------------------------
+
+        updateDeviceStatus();
+
+
+        // --------------------------------------------------
+        // Update every 5 seconds
+        // --------------------------------------------------
+
+        setInterval(
+            updateDeviceStatus,
+            5000
+        );
+
+    </script>
+
+</body>
+
+</html>
