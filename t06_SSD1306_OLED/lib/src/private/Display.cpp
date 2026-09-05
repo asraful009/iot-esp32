@@ -51,4 +51,7 @@ void Display::draw()
         drawObjects[i].draw(oled);
     }
     oled.display(); 
+    
+    // Clear draw object queue
+    drawObjectCount = 0;
 }

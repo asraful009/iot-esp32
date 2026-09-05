@@ -26,6 +26,7 @@ struct DrawObject
 
     int radius;
 
+    int size = 1;
     char text[256];
 
     void draw(Adafruit_SSD1306 &oled);
