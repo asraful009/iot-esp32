@@ -1,6 +1,5 @@
 
-#ifndef CONFIG_SSD1306_H
-#define CONFIG_SSD1306_H
+#pragma once
 
 /** 
 
@@ -24,9 +23,6 @@
 /** @brief Screen I2C SCL pin */
 #define SCREEN_I2C_SCL 22
 
+/** @brief Maximum number of drawable objects */
+#define MAX_DRAW_OBJECTS 32
 
-
-
-
-
-#endif // CONFIG_H

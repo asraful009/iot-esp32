@@ -1,23 +1,24 @@
 
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#pragma once
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "DrawObject.h"
+#include "Config1306.h"
 
 class Display {
 public:
     Display();
     void begin();
-    // void clear();
-    // void drawText(int x, int y, const char* text);
-    // void drawRect(int x, int y, int width, int height);
-    // void drawCircle(int x, int y, int radius);
-    // void update();
+    
+    void clear();
+    void addDrawObject(const DrawObject &drawObject);
+    void draw();
 
 private:
     Adafruit_SSD1306 oled;
+    DrawObject drawObjects[MAX_DRAW_OBJECTS];
+    int drawObjectCount = 0;
 
 };
 
-#endif // DISPLAY_H
